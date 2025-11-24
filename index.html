@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JUEGO AVENTURA EN EL REINO JS</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="JS/main.js" type="module" defer></script>
+</head>
+
+<body>
+  <header>
+    <h1 id="title">Aventura en el Reino de JS</h1>
+  </header>
+
+  <main>
+    <div id="escena-1" class="escena">
+      <div id="escena-1-player">
+        <img src="" alt="Avatar Jugador" onerror="this.style.display='none'">
+        <h2 id="nombre-jugador">Cazador</h2>
+      </div>
+      <div id="escena-1-stats">
+        <div><p>Ataque: <span id="stat-ataque-inicio">0</span></p></div>
+        <div><p>Defensa: <span id="stat-defensa-inicio">0</span></p></div>
+        <div><p>Vida: <span id="stat-vida-inicio">100</span></p></div>
+      </div>
+      <div>
+        <button id="btn-ir-mercado">Continuar al Mercado</button>
+      </div>
+    </div>
+
+    <div id="escena-2" class="escena">
+      <h2>Mercado Negro</h2>
+      <div id="mercado-container"></div>
+      <div>
+        <button id="btn-fin-compra">Comprar</button>
+      </div>
+    </div>
+
+    <div id="escena-3" class="escena">
+      <div id="escena-3-player">
+        <img src="" alt="Avatar Jugador" onerror="this.style.display='none'">
+      </div>
+      <h2>Tus nuevas estadísticas</h2>
+      <div id="escena-3-stats">
+        <div><p>Ataque: <span id="stat-ataque-fin">0</span></p></div>
+        <div><p>Defensa: <span id="stat-defensa-fin">0</span></p></div>
+        <div><p>Vida: <span id="stat-vida-fin">0</span></p></div>
+        <div><p>Puntos: <span id="stat-puntos-fin">0</span></p></div>
+      </div>
+      <div>
+        <button id="btn-ir-enemigos">Ver Enemigos</button>
+      </div>
+    </div>
+
+    <div id="escena-4" class="escena">
+      <h2>Tus Oponentes</h2>
+      <div id="enemigos-container"></div>
+      <div>
+        <button id="btn-comenzar-batalla">¡A Luchar!</button>
+      </div>
+    </div>
+
+    <div id="escena-5" class="escena">
+      <h2>Combate</h2>
+      <div class="zona-batalla" id="area-combate">
+        <p>Preparando el combate...</p>
+      </div>
+      <div>
+        <button id="btn-siguiente-batalla">Siguiente Batalla</button>
+      </div>
+    </div>
+
+    <div id="escena-6" class="escena">
+      <div>
+        <h2 id="mensaje-rango">El Jugador ha logrado ser un...</h2>
+        <h3>Puntos totales: <span id="puntuacion-final">0</span></h3>
+        <button id="btn-reiniciar">Reiniciar Juego</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div id="inventory-container"></div>
+  </footer>
+</body>
+</html>
