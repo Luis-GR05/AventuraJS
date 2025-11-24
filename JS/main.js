@@ -14,8 +14,9 @@ const btnEscena3 = document.getElementById("btn-ir-enemigos");
 const btnEscena4 = document.getElementById("btn-comenzar-batalla");
 const btnEscena5 = document.getElementById("btn-siguiente-batalla");
 const btnEscena6 = document.getElementById("btn-reiniciar");
+const imagenJugador = document.getElementsByName("Avatar Jugador");
 
-// Objeto para agrupar elementos UI que faltaba definir
+// Objeto para agrupar elementos
 const elementosUI = {
     mercado: document.getElementById("mercado-container"),
     enemigos: document.getElementById("enemigos-container"),
@@ -25,7 +26,7 @@ const elementosUI = {
     mensajeRango: document.getElementById("mensaje-rango")
 };
 
-// Elementos de stats finales (no estaban definidos antes)
+// Elementos de stats finales
 const statsFin = {
     ataque: document.getElementById("stat-ataque-fin"),
     defensa: document.getElementById("stat-defensa-fin"),
@@ -42,16 +43,17 @@ let enemigosActivos = [];
 let indiceEnemigoActual = 0;
 
 const datosEnemigos = [
-    {nombre: "Goblin", img: "/img/Goblin.png", ataque: 15, vida: 50, jefe: false},
-    {nombre: "Golem", img: "/img/Golem.png", ataque: 20, vida: 100, jefe: false},
-    {nombre: "Orco", img: "/img/Orco.png", ataque: 25, vida: 80, jefe: false},
-    {nombre: "Dragón", img: "/img/Dragon.png", ataque: 40, vida: 150, jefe: true}
+    {nombre: "Goblin", img: "/img/Enemigos/Goblin.png", ataque: 15, vida: 50, jefe: false},
+    {nombre: "Golem", img: "/img/Enemigos/Golem.png", ataque: 20, vida: 100, jefe: false},
+    {nombre: "Orco", img: "/img/Enemigos/Orco.png", ataque: 25, vida: 80, jefe: false},
+    {nombre: "Dragón", img: "/img/Enemigos/Dragon.png", ataque: 40, vida: 150, jefe: true}
 ];
 
 // --- FUNCIONES ---
 
 function iniciarJuego() {
-    jugador = new Jugador("Cazador", "/img/cazador.png");
+    jugador = new Jugador("Cazador", "/img/Personaje/Cazador.png");
+    imagenJugador = jugador.avatar;
     carrito = [];
     enemigosActivos = [];
     indiceEnemigoActual = 0;
