@@ -138,12 +138,12 @@ function renderizarMercado() {
         let claseBonus = "";
         let tipoLowerCase = prod.tipo.toLowerCase();
         
-        if (tipoLowerCase.includes("arma") || tipoLowerCase.includes("espada") || tipoLowerCase.includes("hacha") || tipoLowerCase.includes("ataque")) {
-            claseBonus = "texto-ataque"; // Rojo
-        } else if (tipoLowerCase.includes("pocion") || tipoLowerCase.includes("vida") || tipoLowerCase.includes("salud") || tipoLowerCase.includes("consumible")) {
-            claseBonus = "texto-vida";   // Verde
-        } else if (tipoLowerCase.includes("escudo") || tipoLowerCase.includes("armadura") || tipoLowerCase.includes("defensa")) {
+        if (tipoLowerCase.includes("armadura")) {
             claseBonus = "texto-defensa"; // Azul
+        } else if (tipoLowerCase.includes("consumible")) {
+            claseBonus = "texto-vida";   // Verde
+        } else if (tipoLowerCase.includes("arma")) {
+            claseBonus = "texto-ataque"; // Rojo
         }
 
         card.innerHTML = `
