@@ -92,7 +92,7 @@ function iniciarJuego() {
  */
 function cambiarEscena(idEscena) {
     escenas.forEach(escena => escena.style.display = "none");
-    document.getElementById(idEscena).style.display = "block";
+    document.getElementById(idEscena).style.display = "flex"; 
 }
 
 /**
@@ -134,13 +134,24 @@ function renderizarMercado() {
         card.className = "producto-card";
 
         const textoPrecio = prod.rareza === rarezaOferta ? 
-        `<span style="color:green; font-weight:bold">${prod.precio}€ (Oferta!)</span>` : `${prod.precio}€`;
+        `<span class="texto-oferta">${prod.precio}€ (Oferta!)</span>` : `${prod.precio}€`;
+
+        let claseBonus = "";
+        let tipoLowerCase = prod.tipo.toLowerCase();
+        
+        if (tipoLowerCase.includes("arma") || tipoLowerCase.includes("espada") || tipoLowerCase.includes("hacha") || tipoLowerCase.includes("ataque")) {
+            claseBonus = "texto-ataque";
+        } else if (tipoLowerCase.includes("pocion") || tipoLowerCase.includes("vida") || tipoLowerCase.includes("salud")) {
+            claseBonus = "texto-vida";
+        } else if (tipoLowerCase.includes("escudo") || tipoLowerCase.includes("armadura") || tipoLowerCase.includes("defensa")) {
+            claseBonus = "texto-defensa";
+        }
 
         card.innerHTML = `
-            <img src="${prod.imagen}" alt="${prod.nombre}" class="img-producto" style="width: 50px; height: 50px;">
+            <img src="${prod.imagen}" alt="${prod.nombre}" class="img-producto">
             <h4>${prod.nombre}</h4>
             <p>Tipo: ${prod.tipo}</p>
-            <p>Bonus: +${prod.bonus}</p>
+            <p>Bonus: <span class="${claseBonus}">+${prod.bonus}</span></p>
             <p>${textoPrecio}</p>
             <button class="btn-agregar">Añadir</button>
         `;
@@ -228,10 +239,10 @@ function prepararEnemigos() {
         const card = document.createElement("div");
         card.className = "enemigo-card";
         card.innerHTML = `
-            <img src="${dato.img}" alt="${dato.nombre}" class="img-enemigo" style="width: 80px; height: 80px;">
+            <img src="${dato.img}" alt="${dato.nombre}" class="img-enemigo">
             <h3>${dato.nombre}</h3>
-            <p>Ataque: ${dato.ataque}</p>
-            <p>Vida: ${dato.vida}</p>
+            <p>Ataque: <span class="texto-ataque">${dato.ataque}</span></p>
+            <p>Vida: <span class="texto-vida">${dato.vida}</span></p>
         `;
         elementosUI.enemigos.appendChild(card);
     });
@@ -250,21 +261,33 @@ function gestionarBatalla() {
         finalizarJuego();
     } else {
         const enemigo = enemigosActivos[indiceEnemigoActual];
-
         elementosUI.areaCombate.innerHTML = `
         <h3 style="color:gold">VS ${enemigo.nombre}</h3>
-        <div class="vs-container">
-             <div>Tú: <span id="vida-jugador-combate">${jugador.vida}</span> HP</div>
-             <div>Enemigo: ${enemigo.vida} HP</div>
+        
+        <div class="batalla-visual">
+            <div class="lado-jugador">
+                 <img src="${jugador.avatar}" alt="Jugador" class="img-batalla anim-entrada-izq">
+                 <div>Tú</div>
+            </div>
+            <div class="lado-enemigo">
+                 <img src="${enemigo.avatar}" alt="${enemigo.nombre}" class="img-batalla anim-entrada-der">
+                 <div>${enemigo.nombre}</div>
+            </div>
         </div>
-        <p>¡Luchando!...</p>
+
+        <div class="vs-container">
+             <div><span id="vida-jugador-combate" class="texto-vida">${jugador.vida}</span> HP</div>
+             <p>¡Luchando!...</p>
+             <div><span class="texto-vida">${enemigo.vida}</span> HP</div>
+        </div>
+        
     `;
 
         combate(enemigo, jugador);
 
         setTimeout(() => {
             mostrarResultadoCombate(enemigo);
-        }, 800);
+        }, 3000);
     }
 }
 
@@ -281,8 +304,8 @@ function mostrarResultadoCombate(enemigo) {
         htmlResultado = `
             <h2 style="color:#76ff03">¡VICTORIA!</h2>
             <p>Has derrotado a ${enemigo.nombre}.</p>
-            <p>Puntos Totales: ${jugador.puntos}</p>
-            <p>Vida restante: ${jugador.vida}</p>
+            <p>Puntos Totales: <span class="texto-puntos">${jugador.puntos}</span></p>
+            <p>Vida restante: <span class="texto-vida">${jugador.vida}</span></p>
         `;
 
         if (indiceEnemigoActual === enemigosActivos.length - 1) {
@@ -307,10 +330,7 @@ function mostrarResultadoCombate(enemigo) {
     elementosUI.areaCombate.innerHTML = htmlResultado;
 
     btnEscena5.textContent = btnText;
-
-    const nuevoBtn = btnEscena5.cloneNode(true);
-    btnEscena5.parentNode.replaceChild(nuevoBtn, btnEscena5);
-    nuevoBtn.addEventListener("click", btnAction);
+    btnEscena5.onclick = btnAction;
 }
 
 /**
@@ -319,6 +339,7 @@ function mostrarResultadoCombate(enemigo) {
 function finalizarJuego() {
     const rango = distinguirJugador(jugador.puntos);
     elementosUI.puntuacionFinal.textContent = jugador.puntos;
+    elementosUI.puntuacionFinal.className = "texto-puntos";
     elementosUI.mensajeRango.innerHTML = `Rango alcanzado: <strong style="color:gold; font-size:1.5em">${rango}</strong>`;
     cambiarEscena("escena-6");
 }
