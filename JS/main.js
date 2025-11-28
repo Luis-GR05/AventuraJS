@@ -135,16 +135,15 @@ function renderizarMercado() {
 
         const textoPrecio = prod.rareza === rarezaOferta ? 
         `<span class="texto-oferta">${prod.precio}€ (Oferta!)</span>` : `${prod.precio}€`;
-
         let claseBonus = "";
         let tipoLowerCase = prod.tipo.toLowerCase();
         
         if (tipoLowerCase.includes("arma") || tipoLowerCase.includes("espada") || tipoLowerCase.includes("hacha") || tipoLowerCase.includes("ataque")) {
-            claseBonus = "texto-ataque";
-        } else if (tipoLowerCase.includes("pocion") || tipoLowerCase.includes("vida") || tipoLowerCase.includes("salud")) {
-            claseBonus = "texto-vida";
+            claseBonus = "texto-ataque"; // Rojo
+        } else if (tipoLowerCase.includes("pocion") || tipoLowerCase.includes("vida") || tipoLowerCase.includes("salud") || tipoLowerCase.includes("consumible")) {
+            claseBonus = "texto-vida";   // Verde
         } else if (tipoLowerCase.includes("escudo") || tipoLowerCase.includes("armadura") || tipoLowerCase.includes("defensa")) {
-            claseBonus = "texto-defensa";
+            claseBonus = "texto-defensa"; // Azul
         }
 
         card.innerHTML = `
@@ -261,6 +260,7 @@ function gestionarBatalla() {
         finalizarJuego();
     } else {
         const enemigo = enemigosActivos[indiceEnemigoActual];
+
         elementosUI.areaCombate.innerHTML = `
         <h3 style="color:gold">VS ${enemigo.nombre}</h3>
         

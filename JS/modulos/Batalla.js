@@ -19,7 +19,7 @@ export function combate(enemigo, jugador) {
         if (enemigo instanceof Jefe) {
             ataqueEnemigoReal = Math.floor(enemigo.ataque * enemigo.multiplicador);
         }
-
+        /**Al menos 1 de daño*/
         let danioAlJugador = Math.max(1, ataqueEnemigoReal - defensaJugador);
         jugador.vida -= danioAlJugador;
 
