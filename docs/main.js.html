@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: main.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: main.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @file Control principal del juego RPG.
+ * @description Gestiona escenas, mercado, enemigos, inventario y combates.
+ * @author Luis Gordillo Rodriguez
+ */
+import { Jugador } from "./clases/Jugador.js";
+import { Enemigo } from "./clases/Enemigo.js";
+import { Jefe } from "./clases/Jefe.js";
+import { Producto } from "./clases/Producto.js";
+import { listaProductos } from "./modulos/Mercado.js";
+import { combate } from "./modulos/Batalla.js";
+import { distinguirJugador } from "./modulos/Ranking.js";
+import { RAREZAS } from "./constantes.js";
+
+/** Botones principales de la interfaz */
+const btnEscena1 = document.getElementById("btn-ir-mercado");
+const btnEscena2 = document.getElementById("btn-fin-compra");
+const btnEscena3 = document.getElementById("btn-ir-enemigos");
+const btnEscena4 = document.getElementById("btn-comenzar-batalla");
+const btnEscena5 = document.getElementById("btn-siguiente-batalla");
+const btnEscena6 = document.getElementById("btn-reiniciar");
+
+/**
+ * Contenedor de elementos UI principales.
+ * @type {{ mercado: HTMLElement, enemigos: HTMLElement, areaCombate: HTMLElement, inventarioFooter: HTMLElement, puntuacionFinal: HTMLElement, mensajeRango: HTMLElement, imagenesAvatar: NodeListOf }}
+ */
+const elementosUI = {
+    mercado: document.getElementById("mercado-container"),
+    enemigos: document.getElementById("enemigos-container"),
+    areaCombate: document.getElementById("area-combate"),
+    inventarioFooter: document.getElementById("inventory-container"),
+    puntuacionFinal: document.getElementById("puntuacion-final"),
+    mensajeRango: document.getElementById("mensaje-rango"),
+    imagenesAvatar: document.querySelectorAll('img[alt="Avatar Jugador"]')
+};
+
+/**
+ * Elementos donde se muestran las estadísticas finales.
+ */
+const statsFin = {
+    ataque: document.getElementById("stat-ataque-fin"),
+    defensa: document.getElementById("stat-defensa-fin"),
+    vida: document.getElementById("stat-vida-fin"),
+    puntos: document.getElementById("stat-puntos-fin")
+};
+
+/** Conjunto de escenas del juego */
+const escenas = document.querySelectorAll(".escena");
+
+let jugador;
+let carrito = [];
+let enemigosActivos = [];
+let indiceEnemigoActual = 0;
+
+/**
+ * Lista de enemigos que aparecerán durante el juego.
+ * @type {{nombre: string, img: string, ataque: number, vida: number, jefe: boolean}[]}
+ */
+const datosEnemigos = [
+    { nombre: "Goblin", img: "/img/Enemigos/Goblin.png", ataque: 15, vida: 50, jefe: false },
+    { nombre: "Golem", img: "/img/Enemigos/Golem.png", ataque: 20, vida: 100, jefe: false },
+    { nombre: "Orco", img: "/img/Enemigos/Orco.png", ataque: 25, vida: 80, jefe: false },
+    { nombre: "Dragón", img: "/img/Enemigos/Dragon.png", ataque: 40, vida: 150, jefe: true }
+];
+
+/**
+ * Inicializa los valores del juego, crea al jugador y carga la escena inicial.
+ * @function
+ */
+function iniciarJuego() {
+    jugador = new Jugador("Cazador", "/img/Personaje/Cazador.png");
+    carrito = [];
+    enemigosActivos = [];
+    indiceEnemigoActual = 0;
+
+    elementosUI.imagenesAvatar.forEach(img => {
+        img.src = jugador.avatar;
+        img.style.display = 'block';
+    });
+
+    document.getElementById("stat-ataque-inicio").textContent = jugador.ataqueTotal();
+    document.getElementById("stat-defensa-inicio").textContent = jugador.defensaTotal();
+    document.getElementById("stat-vida-inicio").textContent = jugador.vida;
+
+    renderizarFooterInventario([]);
+    cambiarEscena("escena-1");
+}
+
+/**
+ * Cambia la escena visible del juego.
+ * @param {string} idEscena - ID del contenedor de la escena a mostrar.
+ */
+function cambiarEscena(idEscena) {
+    escenas.forEach(escena => escena.style.display = "none");
+    document.getElementById(idEscena).style.display = "block";
+}
+
+/**
+ * Actualiza el apartado de estadísticas con los valores del jugador.
+ * @param {Object} contenedorStats - Elementos DOM donde escribir las estadísticas.
+ */
+function actualizarStats(contenedorStats) {
+    contenedorStats.ataque.textContent = jugador.ataqueTotal();
+    contenedorStats.defensa.textContent = jugador.defensaTotal();
+    contenedorStats.vida.textContent = jugador.vidaTotal() + jugador.vida;
+    if (contenedorStats.puntos) contenedorStats.puntos.textContent = jugador.puntos;
+}
+
+btnEscena1.addEventListener("click", () => {
+    renderizarMercado();
+    cambiarEscena("escena-2");
+});
+
+/**
+ * Renderiza los productos del mercado incluyendo posibles descuentos por rareza.
+ * @function
+ */
+function renderizarMercado() {
+    elementosUI.mercado.innerHTML = "";
+
+    const valoresRarezas = Object.values(RAREZAS);
+    const rarezaOferta = valoresRarezas[Math.floor(Math.random() * valoresRarezas.length)];
+
+    const productosDelMomento = listaProductos.map(p => {
+        let nuevoP = new Producto(p.nombre, p.imagen, p.precio, p.rareza, p.tipo, p.bonus);
+        if (nuevoP.rareza === rarezaOferta) {
+            nuevoP.aplicarDescuento(20);
+        }
+        return nuevoP;
+    });
+
+    productosDelMomento.forEach((prod) => {
+        const card = document.createElement("div");
+        card.className = "producto-card";
+
+        const textoPrecio = prod.rareza === rarezaOferta ? 
+        `&lt;span style="color:green; font-weight:bold">${prod.precio}€ (Oferta!)&lt;/span>` : `${prod.precio}€`;
+
+        card.innerHTML = `
+            &lt;img src="${prod.imagen}" alt="${prod.nombre}" class="img-producto" style="width: 50px; height: 50px;">
+            &lt;h4>${prod.nombre}&lt;/h4>
+            &lt;p>Tipo: ${prod.tipo}&lt;/p>
+            &lt;p>Bonus: +${prod.bonus}&lt;/p>
+            &lt;p>${textoPrecio}&lt;/p>
+            &lt;button class="btn-agregar">Añadir&lt;/button>
+        `;
+
+        const btnAdd = card.querySelector(".btn-agregar");
+        btnAdd.addEventListener("click", () => {
+            cambiarCarrito(prod, btnAdd, card);
+        });
+
+        elementosUI.mercado.appendChild(card);
+    });
+}
+
+/**
+ * Añade o retira un producto del carrito.
+ * @param {Producto} producto - Producto seleccionado.
+ * @param {HTMLElement} boton - Botón pulsado.
+ * @param {HTMLElement} card - Tarjeta del producto.
+ */
+function cambiarCarrito(producto, boton, card) {
+    const index = carrito.indexOf(producto);
+
+    if (index === -1) {
+        carrito.push(producto);
+        boton.textContent = "Retirar";
+        boton.style.backgroundColor = "#d32f2f";
+        boton.style.color = "white";
+        card.style.backgroundColor = "#e0f2f1";
+    } else {
+        carrito.splice(index, 1);
+        boton.textContent = "Añadir";
+        boton.style.backgroundColor = "";
+        boton.style.color = "";
+        card.style.backgroundColor = "";
+    }
+    renderizarFooterInventario(carrito);
+}
+
+/**
+ * Muestra graficamente los objetos del inventario.
+ * @param {Producto[]} items - Lista de objetos a renderizar.
+ */
+function renderizarFooterInventario(items) {
+    elementosUI.inventarioFooter.innerHTML = "";
+    items.forEach(item => {
+        const box = document.createElement("div");
+        box.className = "item-inventario";
+        const img = document.createElement("img");
+        img.src = item.imagen;
+        img.alt = item.nombre;
+        box.appendChild(img);
+        box.title = item.nombre;
+        elementosUI.inventarioFooter.appendChild(box);
+    });
+}
+
+btnEscena2.addEventListener("click", () => {
+    carrito.forEach(prod => jugador.agregarInventario(prod));
+    actualizarStats(statsFin);
+    renderizarFooterInventario(jugador.inventario);
+    cambiarEscena("escena-3");
+});
+
+btnEscena3.addEventListener("click", () => {
+    prepararEnemigos();
+    cambiarEscena("escena-4");
+});
+
+/**
+ * Prepara todos los enemigos para la fase de batalla.
+ */
+function prepararEnemigos() {
+    elementosUI.enemigos.innerHTML = "";
+    enemigosActivos = [];
+
+    datosEnemigos.forEach(dato => {
+        let nuevoEnemigo;
+        if (dato.jefe) {
+            nuevoEnemigo = new Jefe(dato.nombre, dato.img, dato.ataque, dato.vida);
+        } else {
+            nuevoEnemigo = new Enemigo(dato.nombre, dato.img, dato.ataque, dato.vida);
+        }
+        enemigosActivos.push(nuevoEnemigo);
+
+        const card = document.createElement("div");
+        card.className = "enemigo-card";
+        card.innerHTML = `
+            &lt;img src="${dato.img}" alt="${dato.nombre}" class="img-enemigo" style="width: 80px; height: 80px;">
+            &lt;h3>${dato.nombre}&lt;/h3>
+            &lt;p>Ataque: ${dato.ataque}&lt;/p>
+            &lt;p>Vida: ${dato.vida}&lt;/p>
+        `;
+        elementosUI.enemigos.appendChild(card);
+    });
+}
+
+btnEscena4.addEventListener("click", () => {
+    cambiarEscena("escena-5");
+    gestionarBatalla();
+});
+
+/**
+ * Gestiona una batalla contra el enemigo actual.
+ */
+function gestionarBatalla() {
+    if (indiceEnemigoActual >= enemigosActivos.length || jugador.vida &lt;= 0) {
+        finalizarJuego();
+    } else {
+        const enemigo = enemigosActivos[indiceEnemigoActual];
+
+        elementosUI.areaCombate.innerHTML = `
+        &lt;h3 style="color:gold">VS ${enemigo.nombre}&lt;/h3>
+        &lt;div class="vs-container">
+             &lt;div>Tú: &lt;span id="vida-jugador-combate">${jugador.vida}&lt;/span> HP&lt;/div>
+             &lt;div>Enemigo: ${enemigo.vida} HP&lt;/div>
+        &lt;/div>
+        &lt;p>¡Luchando!...&lt;/p>
+    `;
+
+        combate(enemigo, jugador);
+
+        setTimeout(() => {
+            mostrarResultadoCombate(enemigo);
+        }, 800);
+    }
+}
+
+/**
+ * Muestra el resultado de la batalla y controla el botón para avanzar.
+ * @param {Enemigo|Jefe} enemigo - Enemigo enfrentado.
+ */
+function mostrarResultadoCombate(enemigo) {
+    let htmlResultado = "";
+    let btnText = "";
+    let btnAction = null;
+
+    if (jugador.vida > 0) {
+        htmlResultado = `
+            &lt;h2 style="color:#76ff03">¡VICTORIA!&lt;/h2>
+            &lt;p>Has derrotado a ${enemigo.nombre}.&lt;/p>
+            &lt;p>Puntos Totales: ${jugador.puntos}&lt;/p>
+            &lt;p>Vida restante: ${jugador.vida}&lt;/p>
+        `;
+
+        if (indiceEnemigoActual === enemigosActivos.length - 1) {
+            btnText = "Ver Resultados Finales";
+            btnAction = finalizarJuego;
+        } else {
+            btnText = "Siguiente Enemigo";
+            btnAction = () => {
+                indiceEnemigoActual++;
+                gestionarBatalla();
+            };
+        }
+    } else {
+        htmlResultado = `
+            &lt;h2 style="color:#ff1744">HAS MUERTO&lt;/h2>
+            &lt;p>${enemigo.nombre} te ha aniquilado.&lt;/p>
+        `;
+        btnText = "Terminar Partida";
+        btnAction = finalizarJuego;
+    }
+
+    elementosUI.areaCombate.innerHTML = htmlResultado;
+
+    btnEscena5.textContent = btnText;
+
+    const nuevoBtn = btnEscena5.cloneNode(true);
+    btnEscena5.parentNode.replaceChild(nuevoBtn, btnEscena5);
+    nuevoBtn.addEventListener("click", btnAction);
+}
+
+/**
+ * Finaliza el juego y muestra la puntuación y el rango obtenido.
+ */
+function finalizarJuego() {
+    const rango = distinguirJugador(jugador.puntos);
+    elementosUI.puntuacionFinal.textContent = jugador.puntos;
+    elementosUI.mensajeRango.innerHTML = `Rango alcanzado: &lt;strong style="color:gold; font-size:1.5em">${rango}&lt;/strong>`;
+    cambiarEscena("escena-6");
+}
+
+btnEscena6.addEventListener("click", () => {
+    iniciarJuego();
+});
+
+iniciarJuego();
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Batalla.html">Batalla</a></li><li><a href="module-Enemigo.html">Enemigo</a></li><li><a href="module-Jefe.html">Jefe</a></li><li><a href="module-Jugador.html">Jugador</a></li><li><a href="module-Mercado.html">Mercado</a></li><li><a href="module-Producto.html">Producto</a></li><li><a href="module-Ranking.html">Ranking</a></li></ul><h3>Global</h3><ul><li><a href="global.html#actualizarStats">actualizarStats</a></li><li><a href="global.html#btnEscena1">btnEscena1</a></li><li><a href="global.html#cambiarCarrito">cambiarCarrito</a></li><li><a href="global.html#cambiarEscena">cambiarEscena</a></li><li><a href="global.html#datosEnemigos">datosEnemigos</a></li><li><a href="global.html#elementosUI">elementosUI</a></li><li><a href="global.html#escenas">escenas</a></li><li><a href="global.html#finalizarJuego">finalizarJuego</a></li><li><a href="global.html#gestionarBatalla">gestionarBatalla</a></li><li><a href="global.html#iniciarJuego">iniciarJuego</a></li><li><a href="global.html#mostrarResultadoCombate">mostrarResultadoCombate</a></li><li><a href="global.html#prepararEnemigos">prepararEnemigos</a></li><li><a href="global.html#renderizarFooterInventario">renderizarFooterInventario</a></li><li><a href="global.html#renderizarMercado">renderizarMercado</a></li><li><a href="global.html#statsFin">statsFin</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.5</a> on Fri Nov 28 2025 17:19:25 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

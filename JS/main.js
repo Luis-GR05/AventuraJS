@@ -1,32 +1,42 @@
+/**
+ * @file Control principal del juego RPG.
+ * @description Gestiona escenas, mercado, enemigos, inventario y combates.
+ * @author Luis Gordillo Rodriguez
+ */
 import { Jugador } from "./clases/Jugador.js";
 import { Enemigo } from "./clases/Enemigo.js";
 import { Jefe } from "./clases/Jefe.js";
-import { Producto } from "./clases/Producto.js"; 
+import { Producto } from "./clases/Producto.js";
 import { listaProductos } from "./modulos/Mercado.js";
 import { combate } from "./modulos/Batalla.js";
 import { distinguirJugador } from "./modulos/Ranking.js";
 import { RAREZAS } from "./constantes.js";
 
-// --- REFERENCIAS DOM ---
+/** Botones principales de la interfaz */
 const btnEscena1 = document.getElementById("btn-ir-mercado");
 const btnEscena2 = document.getElementById("btn-fin-compra");
 const btnEscena3 = document.getElementById("btn-ir-enemigos");
 const btnEscena4 = document.getElementById("btn-comenzar-batalla");
 const btnEscena5 = document.getElementById("btn-siguiente-batalla");
 const btnEscena6 = document.getElementById("btn-reiniciar");
-const imagenJugador = document.getElementsByName("Avatar Jugador");
 
-// Objeto para agrupar elementos
+/**
+ * Contenedor de elementos UI principales.
+ * @type {{ mercado: HTMLElement, enemigos: HTMLElement, areaCombate: HTMLElement, inventarioFooter: HTMLElement, puntuacionFinal: HTMLElement, mensajeRango: HTMLElement, imagenesAvatar: NodeListOf }}
+ */
 const elementosUI = {
     mercado: document.getElementById("mercado-container"),
     enemigos: document.getElementById("enemigos-container"),
     areaCombate: document.getElementById("area-combate"),
     inventarioFooter: document.getElementById("inventory-container"),
     puntuacionFinal: document.getElementById("puntuacion-final"),
-    mensajeRango: document.getElementById("mensaje-rango")
+    mensajeRango: document.getElementById("mensaje-rango"),
+    imagenesAvatar: document.querySelectorAll('img[alt="Avatar Jugador"]')
 };
 
-// Elementos de stats finales
+/**
+ * Elementos donde se muestran las estadísticas finales.
+ */
 const statsFin = {
     ataque: document.getElementById("stat-ataque-fin"),
     defensa: document.getElementById("stat-defensa-fin"),
@@ -34,31 +44,40 @@ const statsFin = {
     puntos: document.getElementById("stat-puntos-fin")
 };
 
+/** Conjunto de escenas del juego */
 const escenas = document.querySelectorAll(".escena");
 
-// --- ESTADO DEL JUEGO ---
 let jugador;
 let carrito = [];
 let enemigosActivos = [];
 let indiceEnemigoActual = 0;
 
+/**
+ * Lista de enemigos que aparecerán durante el juego.
+ * @type {{nombre: string, img: string, ataque: number, vida: number, jefe: boolean}[]}
+ */
 const datosEnemigos = [
-    {nombre: "Goblin", img: "/img/Enemigos/Goblin.png", ataque: 15, vida: 50, jefe: false},
-    {nombre: "Golem", img: "/img/Enemigos/Golem.png", ataque: 20, vida: 100, jefe: false},
-    {nombre: "Orco", img: "/img/Enemigos/Orco.png", ataque: 25, vida: 80, jefe: false},
-    {nombre: "Dragón", img: "/img/Enemigos/Dragon.png", ataque: 40, vida: 150, jefe: true}
+    { nombre: "Goblin", img: "/img/Enemigos/Goblin.png", ataque: 15, vida: 50, jefe: false },
+    { nombre: "Golem", img: "/img/Enemigos/Golem.png", ataque: 20, vida: 100, jefe: false },
+    { nombre: "Orco", img: "/img/Enemigos/Orco.png", ataque: 25, vida: 80, jefe: false },
+    { nombre: "Dragón", img: "/img/Enemigos/Dragon.png", ataque: 40, vida: 150, jefe: true }
 ];
 
-// --- FUNCIONES ---
-
+/**
+ * Inicializa los valores del juego, crea al jugador y carga la escena inicial.
+ * @function
+ */
 function iniciarJuego() {
     jugador = new Jugador("Cazador", "/img/Personaje/Cazador.png");
-    imagenJugador = jugador.avatar;
     carrito = [];
     enemigosActivos = [];
     indiceEnemigoActual = 0;
-    
-    // Actualizar stats iniciales
+
+    elementosUI.imagenesAvatar.forEach(img => {
+        img.src = jugador.avatar;
+        img.style.display = 'block';
+    });
+
     document.getElementById("stat-ataque-inicio").textContent = jugador.ataqueTotal();
     document.getElementById("stat-defensa-inicio").textContent = jugador.defensaTotal();
     document.getElementById("stat-vida-inicio").textContent = jugador.vida;
@@ -67,48 +86,55 @@ function iniciarJuego() {
     cambiarEscena("escena-1");
 }
 
+/**
+ * Cambia la escena visible del juego.
+ * @param {string} idEscena - ID del contenedor de la escena a mostrar.
+ */
 function cambiarEscena(idEscena) {
     escenas.forEach(escena => escena.style.display = "none");
     document.getElementById(idEscena).style.display = "block";
 }
 
-function actualizarStats(contenedorStats){
+/**
+ * Actualiza el apartado de estadísticas con los valores del jugador.
+ * @param {Object} contenedorStats - Elementos DOM donde escribir las estadísticas.
+ */
+function actualizarStats(contenedorStats) {
     contenedorStats.ataque.textContent = jugador.ataqueTotal();
     contenedorStats.defensa.textContent = jugador.defensaTotal();
     contenedorStats.vida.textContent = jugador.vidaTotal() + jugador.vida;
-    if(contenedorStats.puntos) contenedorStats.puntos.textContent = jugador.puntos;
+    if (contenedorStats.puntos) contenedorStats.puntos.textContent = jugador.puntos;
 }
 
-// ESCENA 1 -> 2 (MERCADO)
 btnEscena1.addEventListener("click", () => {
     renderizarMercado();
     cambiarEscena("escena-2");
 });
 
-function renderizarMercado(){
+/**
+ * Renderiza los productos del mercado incluyendo posibles descuentos por rareza.
+ * @function
+ */
+function renderizarMercado() {
     elementosUI.mercado.innerHTML = "";
-    
-    // Seleccionar rareza aleatoria para descuento
+
     const valoresRarezas = Object.values(RAREZAS);
     const rarezaOferta = valoresRarezas[Math.floor(Math.random() * valoresRarezas.length)];
 
-    // Clonamos la lista de productos para no afectar la original
     const productosDelMomento = listaProductos.map(p => {
-        // Crear nueva instancia para no modificar la referencia original
         let nuevoP = new Producto(p.nombre, p.imagen, p.precio, p.rareza, p.tipo, p.bonus);
-        if(nuevoP.rareza === rarezaOferta) {
-            nuevoP.aplicarDescuento(20); // Descuento fijo de 20
+        if (nuevoP.rareza === rarezaOferta) {
+            nuevoP.aplicarDescuento(20);
         }
         return nuevoP;
     });
 
     productosDelMomento.forEach((prod) => {
         const card = document.createElement("div");
-        card.className = "producto-card"; 
+        card.className = "producto-card";
 
-        const textoPrecio = prod.rareza === rarezaOferta 
-            ? `<span style="color:green; font-weight:bold">${prod.precio}€ (Oferta!)</span>` 
-            : `${prod.precio}€`;
+        const textoPrecio = prod.rareza === rarezaOferta ? 
+        `<span style="color:green; font-weight:bold">${prod.precio}€ (Oferta!)</span>` : `${prod.precio}€`;
 
         card.innerHTML = `
             <img src="${prod.imagen}" alt="${prod.nombre}" class="img-producto" style="width: 50px; height: 50px;">
@@ -116,21 +142,27 @@ function renderizarMercado(){
             <p>Tipo: ${prod.tipo}</p>
             <p>Bonus: +${prod.bonus}</p>
             <p>${textoPrecio}</p>
-            <button class="btn-add">Añadir</button>
+            <button class="btn-agregar">Añadir</button>
         `;
 
-        const btnAdd = card.querySelector(".btn-add");
+        const btnAdd = card.querySelector(".btn-agregar");
         btnAdd.addEventListener("click", () => {
-            toggleCarrito(prod, btnAdd, card);
+            cambiarCarrito(prod, btnAdd, card);
         });
 
         elementosUI.mercado.appendChild(card);
     });
 }
 
-function toggleCarrito(producto, boton, card) {
+/**
+ * Añade o retira un producto del carrito.
+ * @param {Producto} producto - Producto seleccionado.
+ * @param {HTMLElement} boton - Botón pulsado.
+ * @param {HTMLElement} card - Tarjeta del producto.
+ */
+function cambiarCarrito(producto, boton, card) {
     const index = carrito.indexOf(producto);
-    
+
     if (index === -1) {
         carrito.push(producto);
         boton.textContent = "Retirar";
@@ -147,6 +179,10 @@ function toggleCarrito(producto, boton, card) {
     renderizarFooterInventario(carrito);
 }
 
+/**
+ * Muestra graficamente los objetos del inventario.
+ * @param {Producto[]} items - Lista de objetos a renderizar.
+ */
 function renderizarFooterInventario(items) {
     elementosUI.inventarioFooter.innerHTML = "";
     items.forEach(item => {
@@ -161,7 +197,6 @@ function renderizarFooterInventario(items) {
     });
 }
 
-// ESCENA 2 -> 3 (RESUMEN COMPRA)
 btnEscena2.addEventListener("click", () => {
     carrito.forEach(prod => jugador.agregarInventario(prod));
     actualizarStats(statsFin);
@@ -169,12 +204,14 @@ btnEscena2.addEventListener("click", () => {
     cambiarEscena("escena-3");
 });
 
-// ESCENA 3 -> 4 (ENEMIGOS)
 btnEscena3.addEventListener("click", () => {
     prepararEnemigos();
     cambiarEscena("escena-4");
 });
 
+/**
+ * Prepara todos los enemigos para la fase de batalla.
+ */
 function prepararEnemigos() {
     elementosUI.enemigos.innerHTML = "";
     enemigosActivos = [];
@@ -193,28 +230,28 @@ function prepararEnemigos() {
         card.innerHTML = `
             <img src="${dato.img}" alt="${dato.nombre}" class="img-enemigo" style="width: 80px; height: 80px;">
             <h3>${dato.nombre}</h3>
-            <p>⚔️ Ataque: ${dato.ataque}</p>
-            <p>❤️ Vida: ${dato.vida}</p>
+            <p>Ataque: ${dato.ataque}</p>
+            <p>Vida: ${dato.vida}</p>
         `;
         elementosUI.enemigos.appendChild(card);
     });
 }
 
-// ESCENA 4 -> 5 (BATALLA)
 btnEscena4.addEventListener("click", () => {
     cambiarEscena("escena-5");
     gestionarBatalla();
 });
 
+/**
+ * Gestiona una batalla contra el enemigo actual.
+ */
 function gestionarBatalla() {
-    if (indiceEnemigoActual >= enemigosActivos.length) {
+    if (indiceEnemigoActual >= enemigosActivos.length || jugador.vida <= 0) {
         finalizarJuego();
-        return;
-    }
+    } else {
+        const enemigo = enemigosActivos[indiceEnemigoActual];
 
-    const enemigo = enemigosActivos[indiceEnemigoActual];
-    
-    elementosUI.areaCombate.innerHTML = `
+        elementosUI.areaCombate.innerHTML = `
         <h3 style="color:gold">VS ${enemigo.nombre}</h3>
         <div class="vs-container">
              <div>Tú: <span id="vida-jugador-combate">${jugador.vida}</span> HP</div>
@@ -223,13 +260,18 @@ function gestionarBatalla() {
         <p>¡Luchando!...</p>
     `;
 
-    combate(enemigo, jugador);
+        combate(enemigo, jugador);
 
-    setTimeout(() => {
-        mostrarResultadoCombate(enemigo);
-    }, 800);
+        setTimeout(() => {
+            mostrarResultadoCombate(enemigo);
+        }, 800);
+    }
 }
 
+/**
+ * Muestra el resultado de la batalla y controla el botón para avanzar.
+ * @param {Enemigo|Jefe} enemigo - Enemigo enfrentado.
+ */
 function mostrarResultadoCombate(enemigo) {
     let htmlResultado = "";
     let btnText = "";
@@ -242,7 +284,7 @@ function mostrarResultadoCombate(enemigo) {
             <p>Puntos Totales: ${jugador.puntos}</p>
             <p>Vida restante: ${jugador.vida}</p>
         `;
-        
+
         if (indiceEnemigoActual === enemigosActivos.length - 1) {
             btnText = "Ver Resultados Finales";
             btnAction = finalizarJuego;
@@ -263,16 +305,19 @@ function mostrarResultadoCombate(enemigo) {
     }
 
     elementosUI.areaCombate.innerHTML = htmlResultado;
-    
+
     btnEscena5.textContent = btnText;
-    
+
     const nuevoBtn = btnEscena5.cloneNode(true);
     btnEscena5.parentNode.replaceChild(nuevoBtn, btnEscena5);
     nuevoBtn.addEventListener("click", btnAction);
 }
 
+/**
+ * Finaliza el juego y muestra la puntuación y el rango obtenido.
+ */
 function finalizarJuego() {
-    const rango = distinguirJugador(jugador.puntos, 300);
+    const rango = distinguirJugador(jugador.puntos);
     elementosUI.puntuacionFinal.textContent = jugador.puntos;
     elementosUI.mensajeRango.innerHTML = `Rango alcanzado: <strong style="color:gold; font-size:1.5em">${rango}</strong>`;
     cambiarEscena("escena-6");

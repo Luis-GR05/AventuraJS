@@ -1,4 +1,11 @@
-import {Producto} from "../clases/Producto.js"
+/**
+ * @file Mercado.js
+ * @description Control del mercado: lista de productos, filtros, búsqueda y descuentos aplicables a ítems. 
+ * @module Mercado
+ * @author Luis Gordillo Rodriguez
+ */
+
+import { Producto } from "../clases/Producto.js";
 import { RAREZAS, TIPOS } from "../constantes.js"; 
 
 export const listaProductos = [
@@ -12,18 +19,18 @@ export const listaProductos = [
     new Producto("Lanza", "/img/Items/Lanza.png", 35, RAREZAS.raro, TIPOS.arma, 15),
 ];
 
-export function filtrarProductos(rareza){
-    return listaProductos.filter(producto => producto.rareza === rareza)
+export function filtrarProductos(rareza) {
+    return listaProductos.filter(producto => producto.rareza === rareza);
 }
 
-export function aplicarDescuento(criterio, descuento){
+export function aplicarDescuento(criterio, descuento) {
     for (Producto in listaProductos) {
-        if(Producto.rareza === criterio || Producto.tipo === criterio) {
+        if (Producto.rareza === criterio || Producto.tipo === criterio) {
             Producto.aplicarDescuento(descuento);
         }
     }
 }
 
-export function buscarProducto(nombre){
-    return listaProductos.find(producto => producto.nombre.toLowerCase().includes(nombre.toLowercase()))
+export function buscarProducto(nombre) {
+    return listaProductos.find(producto => producto.nombre.toLowerCase().includes(nombre.toLowercase()));
 }

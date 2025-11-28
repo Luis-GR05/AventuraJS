@@ -1,0 +1,27 @@
+{
+  "name": "aventurajs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docs": "jsdoc -c jsdoc.json"
+
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Luis-GR05/AventuraJS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Luis-GR05/AventuraJS/issues"
+  },
+  "homepage": "https://github.com/Luis-GR05/AventuraJS#readme",
+  "devDependencies": {
+    "jsdoc": "^4.0.5"
+  }
+}

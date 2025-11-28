@@ -1,7 +1,14 @@
-import {VIDA_MAXIMA, PUNTUACION_BASE, VIDA_INICIAL} from "../constantes.js"
+/**
+ * @file Jugador.js
+ * @description Clase principal del jugador, con inventario, estadísticas, ataques y cálculos de bonus según objetos equipados. 
+ * @module Jugador
+ * @author Luis Gordillo Rodriguez
+ */
+
+import { VIDA_MAXIMA, PUNTUACION_BASE, VIDA_INICIAL } from "../constantes.js";
 
 export class Jugador {
-    constructor(nombre, avatar){
+    constructor(nombre, avatar) {
         this.nombre = nombre;
         this.avatar = avatar;
         this.puntos = PUNTUACION_BASE;
@@ -10,31 +17,31 @@ export class Jugador {
         this.vidaMaxima = VIDA_MAXIMA;
     }
 
-    agregarInventario(objeto){
-        let {...objeto1} = objeto;
+    agregarInventario(objeto) {
+        let { ...objeto1 } = objeto;
         this.inventario.push(objeto1);
     }
 
-    sumarPuntos(puntos){
+    sumarPuntos(puntos) {
         this.puntos += puntos;
     }
 
-    ataqueTotal(){
+    ataqueTotal() {
         return this.calcularTotal("arma");
     }
 
-    defensaTotal(){
+    defensaTotal() {
         return this.calcularTotal("armadura");
     }
 
-    vidaTotal(){
+    vidaTotal() {
         return this.calcularTotal("consumible");
     }
 
     calcularTotal(tipo) {
         let total = 0;
         this.inventario.forEach(objeto => {
-            if(objeto.tipo.toLowerCase() == tipo){
+            if (objeto.tipo.toLowerCase() == tipo) {
                 total += objeto.bonus;
             }
         });

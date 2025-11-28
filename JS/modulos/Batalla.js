@@ -1,3 +1,10 @@
+/**
+ * @file Batalla.js
+ * @description Lógica del combate por turnos entre el jugador y los enemigos. Controla daño, defensa, turnos y puntos obtenidos. 
+ * @module Batalla
+ * @author Luis Gordillo Rodriguez
+ */
+
 import { Jefe } from "../clases/Jefe.js";
 import { MAX_TURNOS } from "../constantes.js";
 
@@ -12,6 +19,7 @@ export function combate(enemigo, jugador) {
         if (enemigo instanceof Jefe) {
             ataqueEnemigoReal = Math.floor(enemigo.ataque * enemigo.multiplicador);
         }
+
         let danioAlJugador = Math.max(1, ataqueEnemigoReal - defensaJugador);
         jugador.vida -= danioAlJugador;
 
