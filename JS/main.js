@@ -57,10 +57,10 @@ let indiceEnemigoActual = 0;
  * @type {{nombre: string, img: string, ataque: number, vida: number, jefe: boolean}[]}
  */
 const datosEnemigos = [
-    { nombre: "Goblin", img: "/img/Enemigos/Goblin.png", ataque: 15, vida: 50, jefe: false },
-    { nombre: "Golem", img: "/img/Enemigos/Golem.png", ataque: 20, vida: 100, jefe: false },
-    { nombre: "Orco", img: "/img/Enemigos/Orco.png", ataque: 25, vida: 80, jefe: false },
-    { nombre: "Dragón", img: "/img/Enemigos/Dragon.png", ataque: 40, vida: 150, jefe: true }
+    { nombre: "Goblin", img: "./img/Enemigos/Goblin.png", ataque: 15, vida: 50, jefe: false },
+    { nombre: "Golem", img: "./img/Enemigos/Golem.png", ataque: 20, vida: 100, jefe: false },
+    { nombre: "Orco", img: "./img/Enemigos/Orco.png", ataque: 25, vida: 80, jefe: false },
+    { nombre: "Dragón", img: "./img/Enemigos/Dragon.png", ataque: 40, vida: 150, jefe: true }
 ];
 
 /**
@@ -68,7 +68,7 @@ const datosEnemigos = [
  * @function
  */
 function iniciarJuego() {
-    jugador = new Jugador("Cazador", "/img/Personaje/Cazador.png");
+    jugador = new Jugador("Cazador", "./img/Personaje/Cazador.png");
     carrito = [];
     enemigosActivos = [];
     indiceEnemigoActual = 0;
