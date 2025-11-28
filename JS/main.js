@@ -68,7 +68,7 @@ const datosEnemigos = [
  * @function
  */
 function iniciarJuego() {
-    jugador = new Jugador("Cazador", "./img/Personaje/Cazador.png");
+    jugador = new Jugador("Cazador", "./img/personaje/cazador.png");
     carrito = [];
     enemigosActivos = [];
     indiceEnemigoActual = 0;
