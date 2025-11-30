@@ -132,7 +132,10 @@ footer {
     justify-content: center;
     align-items: center;
     padding: 12px;
-    overflow-x: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-dorado) var(--color-fondo);
 }
 
 /* 4. CLASES DE UTILIDAD PARA TEXTO */
@@ -497,6 +500,8 @@ footer {
         overflow-x: hidden;
         overflow-y: auto;
         align-items: flex-start;
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-dorado) var(--color-fondo);
     }
 
     #inventory-container {
