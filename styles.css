@@ -460,21 +460,39 @@ footer {
 
 /* 10. MEDIA QUERIES */
 @media screen and (max-width: 719px) {
-    h1 { font-size: 24px; }
+    h1 {
+        font-size: 24px;
+    }
 
-    #escena-1-stats, #escena-3-stats { flex-direction: column; gap: 8px; }
+    #escena-1-stats,
+    #escena-3-stats {
+        flex-direction: column;
+        gap: 8px;
+    }
 
-    #mercado-container, #enemigos-container { grid-template-columns: 1fr; }
+    #mercado-container,
+    #enemigos-container {
+        grid-template-columns: 1fr;
+    }
 
-    .producto-card, .enemigo-card {
+    .producto-card,
+    .enemigo-card {
         height: auto;
         flex-direction: column;
         text-align: center;
         gap: 12px;
     }
-    .producto-card img, .enemigo-card img { margin-bottom: 12px; }
-    
-    .img-batalla { width: 100px; height: 100px; }
+
+    .producto-card img,
+    .enemigo-card img {
+        margin-bottom: 12px;
+    }
+
+    .img-batalla {
+        width: 100px;
+        height: 100px;
+    }
+
     footer {
         overflow-x: hidden;
         overflow-y: auto;
@@ -496,7 +514,11 @@ footer {
 }
 
 @media screen and (min-width: 720px) {
-    #mercado-container, #enemigos-container { grid-template-columns: repeat(2, 1fr); }
+
+    #mercado-container,
+    #enemigos-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media screen and (min-width: 1024px) {
