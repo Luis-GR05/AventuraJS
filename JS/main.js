@@ -342,6 +342,7 @@ function finalizarJuego() {
     elementosUI.puntuacionFinal.className = "texto-puntos";
     elementosUI.mensajeRango.innerHTML = `Rango alcanzado: <strong style="color:gold; font-size:1.5em">${rango}</strong>`;
     cambiarEscena("escena-6");
+    confetti();
 }
 
 btnEscena6.addEventListener("click", () => {
