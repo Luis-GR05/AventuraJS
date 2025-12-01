@@ -27,7 +27,7 @@ export class Jugador {
     }
 
     ataqueTotal() {
-        return this.calcularTotal("arma");
+        return this.calcularTotal("arma") + 10;/**10 ataque base */
     }
 
     defensaTotal() {
@@ -39,7 +39,7 @@ export class Jugador {
     }
 
     calcularTotal(tipo) {
-        let total = 10; /**10 ataque base */
+        let total = 0; 
         this.inventario.forEach(objeto => {
             if (objeto.tipo.toLowerCase() == tipo) {
                 total += objeto.bonus;
