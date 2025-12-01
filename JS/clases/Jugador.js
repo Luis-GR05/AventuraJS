@@ -39,7 +39,7 @@ export class Jugador {
     }
 
     calcularTotal(tipo) {
-        let total = 0;
+        let total = 10; /**10 ataque base */
         this.inventario.forEach(objeto => {
             if (objeto.tipo.toLowerCase() == tipo) {
                 total += objeto.bonus;
