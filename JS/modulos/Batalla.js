@@ -13,7 +13,7 @@ export function combate(enemigo, jugador) {
 
     while (enemigo.vida > 0 && jugador.vida > 0 && turno <= MAX_TURNOS) {
         let defensaJugador = jugador.defensaTotal();
-        let ataqueJugador = 10 + jugador.ataqueTotal();
+        let ataqueJugador = jugador.ataqueTotal();
         let ataqueEnemigoReal = enemigo.ataque;
 
         if (enemigo instanceof Jefe) {
