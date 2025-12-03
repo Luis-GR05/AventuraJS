@@ -103,6 +103,7 @@ function actualizarStats(contenedorStats) {
     contenedorStats.ataque.textContent = jugador.ataqueTotal();
     contenedorStats.defensa.textContent = jugador.defensaTotal();
     contenedorStats.vida.textContent = jugador.vidaTotal() + jugador.vida;
+    jugador.vida = jugador.vidaTotal() + jugador.vida;
     if (contenedorStats.puntos) contenedorStats.puntos.textContent = jugador.puntos;
 }
 
@@ -282,7 +283,6 @@ function gestionarBatalla() {
         </div>
         
     `;
-
         combate(enemigo, jugador);
 
         setTimeout(() => {
